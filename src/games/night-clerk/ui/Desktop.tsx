@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { APP_INFO, APP_UNLOCK, CHAPTERS, fmtClock } from '../data/clues.ts'
 import type { AppId } from '../data/clues.ts'
-import { clockOf, hintFor } from '../state.ts'
-import { useGame } from './ctx.ts'
+import { clockOf } from '../state.ts'
+import { guideFor } from '../guide.ts'
+import { Ctx, useGame } from './ctx.ts'
 import Events from './Events.tsx'
 import Register from './apps/Register.tsx'
 import Keycard from './apps/Keycard.tsx'
@@ -31,14 +32,24 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
   accuseOpen: boolean
   setAccuseOpen: (v: boolean) => void
 }) {
-  const { s, sfx, status, pin } = useGame()
+  const game = useGame()
+  const { s, sfx, status, pin, dispatch } = game
   const [wins, setWins] = useState<Win[]>([])
   const [menu, setMenu] = useState(false)
   const [tray, setTray] = useState(false)
-  const [hint, setHint] = useState<string | null>(null)
+  const [hintOn, setHintOn] = useState(false)
   const [flick, setFlick] = useState(false)
   const zTop = useRef(10)
   const screenRef = useRef<HTMLDivElement>(null)
+  const nextRef = useRef<HTMLDivElement>(null)
+  // keep windows below the NEXT bar, however many lines it wraps to
+  useLayoutEffect(() => {
+    const el = nextRef.current, scr = screenRef.current
+    if (!el || !scr) return
+    const ro = new ResizeObserver(() => scr.style.setProperty('--nexth', `${el.offsetHeight}px`))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   const open = useCallback((id: AppId) => {
     if (APP_UNLOCK[id] > s.chapter) { sfx('U5'); status(`${APP_INFO[id].name} is locked for now.`); return }
@@ -64,11 +75,11 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // gentle hint after 5 quiet minutes
+  // if guided mode is off, show the next step after 2 quiet minutes
   useEffect(() => {
-    setHint(null)
-    if (!s.settings.hints) return
-    const t = setTimeout(() => setHint(hintFor(s)), 5 * 60 * 1000)
+    setHintOn(false)
+    if (!s.settings.hints || s.settings.guided) return
+    const t = setTimeout(() => setHintOn(true), 2 * 60 * 1000)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.clues.length, s.deductions.length, s.chapter, s.settings.hints])
@@ -99,10 +110,17 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
     }
   }
 
+  const openIds = wins.map((w) => w.id)
+  const nextStep = guideFor(s, openIds)
+  const guide = s.settings.guided || hintOn ? nextStep : null
+  const glow = (on: boolean) => (on ? 'is-guide' : '')
+  const welcomed = s.flags.includes('welcomed')
+
   const unreadTotal = s.unread.ray + s.unread.edna + s.unread.luis
   const lampFlicker = s.activeEvent === 'bell' || s.activeEvent === 'beam' || s.activeEvent === 'reboot'
 
   return (
+    <Ctx.Provider value={{ ...game, guide }}>
     <div className={`nc-room ${lampFlicker ? 'is-flicker' : ''}`}>
       <div className="nc-lamp" aria-hidden />
       <div className="nc-monitor">
@@ -113,21 +131,16 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
               {ORDER.map((id) => {
                 const locked = APP_UNLOCK[id] > s.chapter
                 return (
-                  <button key={id} className={`nc-icon ${locked ? 'is-locked' : ''}`} onDoubleClick={() => open(id)} onClick={() => window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 760 ? open(id) : undefined} onKeyDown={(e) => e.key === 'Enter' && open(id)}>
+                  <button key={id} className={`nc-icon ${locked ? 'is-locked' : ''} ${glow(guide?.app === id && !openIds.includes(id))}`} onDoubleClick={() => open(id)} onClick={() => window.matchMedia('(pointer: coarse)').matches || window.innerWidth < 760 ? open(id) : undefined} onKeyDown={(e) => e.key === 'Enter' && open(id)}>
                     <span className="nc-icon-img">{locked ? '🔒' : APP_INFO[id].icon}</span>
                     <span>{APP_INFO[id].name}{id === 'messages' && unreadTotal > 0 ? ` (${unreadTotal})` : ''}</span>
                   </button>
                 )
               })}
             </div>
-            <button className="nc-sticky nc-sticky-mon" onClick={() => { sfx('U1'); pin(4) }}>
+            <button className={`nc-sticky nc-sticky-mon ${glow(guide?.special === 'sticky')}`} onClick={() => { sfx('U1'); pin(4) }}>
               CCTV clock still 20 min fast, fix it. — R
             </button>
-            {hint && (
-              <button className="nc-sticky nc-sticky-hint" onClick={() => setHint(null)} aria-live="polite">
-                {hint}<small> (click to dismiss)</small>
-              </button>
-            )}
           </div>
 
           {wins.map((w) => {
@@ -148,18 +161,18 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
           {menu && (
             <div className="nc-menu" role="menu">
               {ORDER.map((id) => (
-                <button key={id} role="menuitem" className={APP_UNLOCK[id] > s.chapter ? 'is-locked' : ''} onClick={() => open(id)}>
+                <button key={id} role="menuitem" className={`${APP_UNLOCK[id] > s.chapter ? 'is-locked' : ''} ${glow(guide?.app === id)}`} onClick={() => open(id)}>
                   {APP_UNLOCK[id] > s.chapter ? '🔒' : APP_INFO[id].icon} {APP_INFO[id].name}
                 </button>
               ))}
               <hr />
-              <button role="menuitem" onClick={() => { setMenu(false); setHint(hintFor(s) ?? 'You have what you need. Check the Notebook.') }}>💡 I'm stuck</button>
+              <button role="menuitem" onClick={() => { setMenu(false); setHintOn(true) }}>💡 Show me what to do</button>
               <button role="menuitem" onClick={onQuit}>⏻ Save &amp; quit</button>
             </div>
           )}
 
           <footer className="nc-taskbar">
-            <button className={`nc-start ${menu ? 'is-on' : ''}`} onClick={() => { sfx('U1'); setMenu(!menu) }} aria-expanded={menu}>▤ Desk</button>
+            <button className={`nc-start ${menu ? 'is-on' : ''} ${glow(!!guide?.app && !openIds.includes(guide.app) && wins.length > 0 && !menu)}`} onClick={() => { sfx('U1'); setMenu(!menu) }} aria-expanded={menu}>▤ Desk</button>
             <div className="nc-tasks">
               {wins.map((w) => (
                 <button key={w.id} className="nc-task" onClick={() => focus(w.id)}>{APP_INFO[w.id].icon} <span>{APP_INFO[w.id].name}</span></button>
@@ -168,18 +181,38 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
             <div className="nc-tray">
               {saving && <span className="nc-floppy" title="Saved">💾</span>}
               <span title={`Chapter ${s.chapter}: ${CHAPTERS[s.chapter].title}`} className="nc-chapter">Ch.{s.chapter}</span>
+              {!s.settings.guided && <button className="nc-trayicon" onClick={() => setHintOn(true)} aria-label="Hint">💡</button>}
               <button className="nc-trayicon" onClick={() => open('settings')} aria-label="Volume and settings">🔈</button>
               <span className="nc-clock">{fmtClock(clockOf(s))}</span>
             </div>
           </footer>
-          <div className="nc-status" aria-live="polite">{statusMsg || CHAPTERS[s.chapter].goal}</div>
+          {statusMsg && <div className="nc-status" aria-live="polite">{statusMsg}</div>}
+          <div ref={nextRef} className="nc-next" aria-live="polite">
+            {guide ? <><b>NEXT ▸</b> {guide.text}</> : <><b>GOAL ▸</b> {CHAPTERS[s.chapter].goal}</>}
+            {!guide && <button className="nc-next-hint" onClick={() => setHintOn(true)}>💡 Hint</button>}
+          </div>
+          {!welcomed && (
+            <div className="nc-event" role="dialog" aria-label="How to play">
+              <div className="nc-event-box nc-welcome">
+                <h2>You're the night clerk.</h2>
+                <p>A guest vanished from <b>Room 9</b> last night. The police think he just left.</p>
+                <p>Use this computer to find out what really happened.</p>
+                <ul>
+                  <li><b>Tap</b> an app to open it.</li>
+                  <li><b>Tap</b> anything suspicious to save it as a clue.</li>
+                  <li>Follow the <b>NEXT</b> bar at the top. Glowing things are what to tap.</li>
+                </ul>
+                <button className="nc-btn nc-big" autoFocus onClick={() => { sfx('U1'); dispatch({ type: 'FLAG', flag: 'welcomed' }) }}>Start my shift</button>
+              </div>
+            </div>
+          )}
           <Events />
         </div>
         <div className="nc-bezel-label">PINECREST · DESK 1</div>
       </div>
       <div className="nc-desk">
         <span className="nc-mug" aria-hidden>☕</span>
-        <button className="nc-deskbtn" onClick={() => { sfx('U1'); setTray(!tray) }}>⌨ Look under the keyboard</button>
+        <button className={`nc-deskbtn ${glow(guide?.special === 'keyboard' && !tray)}`} onClick={() => { sfx('U1'); setTray(!tray) }}>⌨ Look under the keyboard</button>
         <button className="nc-deskbtn" onClick={() => sfx('S1')} aria-label="Ring the desk bell">🛎</button>
         {tray && (
           <div className="nc-sticky nc-sticky-tray">
@@ -188,5 +221,6 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
         )}
       </div>
     </div>
+    </Ctx.Provider>
   )
 }

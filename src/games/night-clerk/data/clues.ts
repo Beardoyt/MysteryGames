@@ -21,7 +21,7 @@ export const CLUES: Clue[] = [
   { id: 7, text: 'Adjuster O. Marsh visiting for the Room 14 claim', app: 'email', chapter: 3, source: 'Email · Trash' },
   { id: 8, text: 'Room 14: no cleanup needed. Keep locked', app: 'maintenance', chapter: 3, source: 'Maintenance Log' },
   { id: 9, text: 'Room 9 bed made wrong, not my work', app: 'staff', chapter: 4, source: 'Staff Notes' },
-  { id: 10, text: 'Thanks for staying till 4, little brother', app: 'voicemail', chapter: 4, source: 'Voicemail #4' },
+  { id: 10, text: 'Thanks for staying till 4, little brother', app: 'voicemail', chapter: 4, source: 'Voicemail' },
   { id: 11, text: 'Room 12 opened 3:20am', app: 'keycard', chapter: 4, source: 'Keycard Log' },
   { id: 12, text: 'I saw Ray with a bag', app: 'messages', chapter: 4, source: 'Messages · Edna' },
 ]

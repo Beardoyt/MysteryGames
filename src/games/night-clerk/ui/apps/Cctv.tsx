@@ -17,7 +17,7 @@ const MOTION = new Set([192, 212])
 const memory = { cam: 'walkway' as CamId, i: 0 }
 
 export default function Cctv() {
-  const { pin, status, sfx } = useGame()
+  const { pin, status, sfx, guide } = useGame()
   const [cam, setCamState] = useState<CamId>(memory.cam)
   const [i, setIState] = useState(memory.i)
   const setCam = (c: CamId) => { memory.cam = c; setCamState(c) }
@@ -25,6 +25,16 @@ export default function Cctv() {
   const [zoomOn, setZoomOn] = useState(false)
   const [zoom, setZoom] = useState<{ x: number; y: number; k: number } | null>(null)
   const stamp = STAMPS[i]
+  // which control guided mode should highlight
+  const g = guide?.cctv
+  const step = !g ? null
+    : cam !== g.cam ? 'cam'
+    : stamp < g.min ? 'next'
+    : stamp > g.max ? 'prev'
+    : g.zoom && !zoomOn ? 'zoomtool'
+    : g.zoom && !zoom ? 'image'
+    : 'pin'
+  const gl = (k: string) => (step === k ? 'is-guide' : '')
 
   const go = (n: number) => {
     const j = Math.max(0, Math.min(STAMPS.length - 1, n))
@@ -51,12 +61,12 @@ export default function Cctv() {
     <div className="nc-app nc-cctv">
       <div className="nc-toolbar">
         {(['walkway', 'lot', 'lobby'] as CamId[]).map((c) => (
-          <button key={c} className={`nc-btn ${cam === c ? 'is-on' : ''}`} onClick={() => { setCam(c); setZoom(null); sfx('U12') }}>
+          <button key={c} className={`nc-btn ${cam === c ? 'is-on' : ''} ${step === 'cam' && g?.cam === c ? 'is-guide' : ''}`} onClick={() => { setCam(c); setZoom(null); sfx('U12') }}>
             {c === 'walkway' ? 'CAM2 Walkway' : c === 'lot' ? 'CAM3 Lot' : 'CAM1 Lobby'}
           </button>
         ))}
       </div>
-      <div className={`nc-cam-wrap ${zoomOn ? 'is-zoom' : ''}`}>
+      <div className={`nc-cam-wrap ${zoomOn ? 'is-zoom' : ''} ${gl('image')}`}>
         <CamCanvas
           cam={{ cam, stamp, zoom }}
           label={`${cam} camera at ${camStamp(stamp)}${zoom ? ', zoomed' : ''}`}
@@ -69,19 +79,19 @@ export default function Cctv() {
         {MOTION.has(stamp) && <span className="nc-motion">MOTION</span>}
       </div>
       <div className="nc-toolbar">
-        <button className="nc-btn" onClick={() => go(i - 1)} aria-label="Previous frame">◀</button>
+        <button className={`nc-btn ${gl('prev')}`} onClick={() => go(i - 1)} aria-label="Previous frame">◀</button>
         <input
           type="range" min={0} max={STAMPS.length - 1} value={i}
           onChange={(e) => go(+e.target.value)} aria-label="Time" className="nc-slider"
         />
-        <button className="nc-btn" onClick={() => go(i + 1)} aria-label="Next frame">▶</button>
+        <button className={`nc-btn ${gl('next')}`} onClick={() => go(i + 1)} aria-label="Next frame">▶</button>
         <span className="nc-mono">{camStamp(stamp)}</span>
       </div>
       <div className="nc-toolbar">
-        <button className={`nc-btn ${zoomOn ? 'is-on' : ''}`} onClick={() => { setZoomOn(!zoomOn); setZoom(null) }}>🔍 Zoom tool {zoomOn ? 'ON' : 'off'}</button>
-        <button className="nc-btn" onClick={pinFrame}>📌 Pin this frame</button>
+        <button className={`nc-btn ${zoomOn ? 'is-on' : ''} ${gl('zoomtool')}`} onClick={() => { setZoomOn(!zoomOn); setZoom(null) }}>🔍 Zoom tool {zoomOn ? 'ON' : 'off'}</button>
+        <button className={`nc-btn ${gl('pin')}`} onClick={pinFrame}>📌 Pin this frame</button>
       </div>
-      <div className="nc-foot">{zoomOn ? 'Click the image to zoom in on a spot. Click again to zoom out.' : 'Archive: night of Oct 14–15. Times are the camera\'s own clock.'}</div>
+      <div className="nc-foot">{zoomOn ? 'Tap the image to zoom in. Tap again to zoom out.' : 'Last night\'s recordings.'}</div>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { useGame } from '../ctx.ts'
 import Line from '../Line.tsx'
 
 export default function Email() {
-  const { s, dispatch, sfx, status } = useGame()
+  const { s, dispatch, sfx, status, guide } = useGame()
   const [pw, setPw] = useState('')
   const [folder, setFolder] = useState<'inbox' | 'trash'>('inbox')
   const [sel, setSel] = useState<string | null>(null)
@@ -31,13 +31,13 @@ export default function Email() {
     <div className="nc-app">
       <div className="nc-toolbar">
         <button className={`nc-btn ${folder === 'inbox' ? 'is-on' : ''}`} onClick={() => { setFolder('inbox'); setSel(null) }}>Inbox</button>
-        <button className={`nc-btn ${folder === 'trash' ? 'is-on' : ''}`} onClick={() => { setFolder('trash'); setSel(null) }}>Trash</button>
+        <button className={`nc-btn ${folder === 'trash' ? 'is-on' : ''} ${guide?.clue === 7 && folder !== 'trash' ? 'is-guide' : ''}`} onClick={() => { setFolder('trash'); setSel(null) }}>Trash</button>
       </div>
       <div className="nc-split">
         <ul className="nc-list">
           {list.map((m) => (
             <li key={m.id}>
-              <button className={`nc-listbtn ${sel === m.id ? 'is-on' : ''}`} onClick={() => { setSel(m.id); sfx('U1') }}>
+              <button className={`nc-listbtn ${sel === m.id ? 'is-on' : ''} ${guide?.clue === 7 && m.clueLine !== undefined && sel !== m.id ? 'is-guide' : ''}`} onClick={() => { setSel(m.id); sfx('U1') }}>
                 <b>{m.from}</b><span>{m.subject}</span><small>{m.date}</small>
               </button>
             </li>

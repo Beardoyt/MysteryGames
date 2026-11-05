@@ -7,7 +7,7 @@ import Line from '../Line.tsx'
 const NAMES: Record<Contact, string> = { ray: 'RAY (mgr)', edna: 'EDNA · Rm 12', luis: 'LUIS (maint.)' }
 
 export default function Messages() {
-  const { s, dispatch, sfx } = useGame()
+  const { s, dispatch, sfx, guide } = useGame()
   const contacts = (['ray', 'edna', 'luis'] as Contact[]).filter((c) => s.chat[c].length > 0)
   const [sel, setSel] = useState<Contact | null>(null)
   const cur = sel ?? contacts[0] ?? null
@@ -23,7 +23,7 @@ export default function Messages() {
     <div className="nc-app">
       <div className="nc-toolbar">
         {contacts.map((c) => (
-          <button key={c} className={`nc-btn ${cur === c ? 'is-on' : ''}`} onClick={() => setSel(c)}>
+          <button key={c} className={`nc-btn ${cur === c ? 'is-on' : ''} ${guide?.special === 'chat' && c === 'edna' && cur !== 'edna' ? 'is-guide' : ''}`} onClick={() => setSel(c)}>
             {NAMES[c]}{s.unread[c] > 0 && cur !== c ? ` (${s.unread[c]})` : ''}
           </button>
         ))}
@@ -44,7 +44,7 @@ export default function Messages() {
       {choices.length > 0 && (
         <div className="nc-choices">
           {choices.map((c) => (
-            <button key={c.id} className="nc-btn" onClick={() => { sfx('U10'); dispatch({ type: 'CHOOSE', contact: cur, choice: c.id }); setTimeout(() => sfx('U9'), 500) }}>
+            <button key={c.id} className={`nc-btn ${guide?.special === 'chat' && cur === 'edna' && c.id !== 'tell' && c.id !== 'hurt' ? 'is-guide' : ''}`} onClick={() => { sfx('U10'); dispatch({ type: 'CHOOSE', contact: cur, choice: c.id }); setTimeout(() => sfx('U9'), 500) }}>
               ▸ {c.text}
             </button>
           ))}

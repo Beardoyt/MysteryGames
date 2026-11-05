@@ -3,7 +3,7 @@ import { DEDUCTIONS, clueById } from '../../data/clues.ts'
 import { useGame } from '../ctx.ts'
 
 export default function Notebook({ onAccuse }: { onAccuse: () => void }) {
-  const { s, dispatch, sfx, status } = useGame()
+  const { s, dispatch, sfx, status, guide } = useGame()
   const [sel, setSel] = useState<number[]>([])
   const [shake, setShake] = useState(false)
   const [snap, setSnap] = useState<string | null>(null)
@@ -37,12 +37,12 @@ export default function Notebook({ onAccuse }: { onAccuse: () => void }) {
   return (
     <div className="nc-app nc-notebook">
       <div className="nc-toolbar">
-        <button className="nc-btn" disabled={sel.length < 2} onClick={() => test(sel)}>🔗 Connect selected ({sel.length})</button>
+        <button className={`nc-btn ${guide?.special === 'connect' && guide.cards?.every((c) => sel.includes(c)) ? 'is-guide' : ''}`} disabled={sel.length < 2} onClick={() => test(sel)}>🔗 Connect selected ({sel.length})</button>
         {sel.length > 0 && <button className="nc-btn" onClick={() => setSel([])}>Clear</button>}
-        {s.chapter >= 4 && <button className="nc-btn nc-accuse-btn" onClick={onAccuse}>⚖ Accuse…</button>}
+        {s.chapter >= 4 && <button className={`nc-btn nc-accuse-btn ${guide?.special === 'accuse' ? 'is-guide' : ''}`} onClick={onAccuse}>⚖ Accuse…</button>}
       </div>
       <div className={`nc-cork ${shake ? 'is-shake' : ''}`}>
-        {s.clues.length === 0 && <p className="nc-cork-empty">Click a suspicious line in any app to pin it here.</p>}
+        {s.clues.length === 0 && <p className="nc-cork-empty">Tap anything suspicious in an app to pin it here.</p>}
         {[...s.clues].sort((a, b) => a - b).map((id) => {
           const c = clueById(id)
           return (
@@ -53,7 +53,7 @@ export default function Notebook({ onAccuse }: { onAccuse: () => void }) {
               onDragEnd={() => setDrag(null)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); if (drag !== null && drag !== id) test([...sel, drag, id]) }}
-              className={`nc-card ${sel.includes(id) ? 'is-sel' : ''}`}
+              className={`nc-card ${sel.includes(id) ? 'is-sel' : ''} ${!sel.includes(id) && guide?.cards?.includes(id) ? 'is-guide' : ''}`}
               onClick={() => toggle(id)}
               aria-pressed={sel.includes(id)}
             >
@@ -75,7 +75,7 @@ export default function Notebook({ onAccuse }: { onAccuse: () => void }) {
           ))}
         </div>
       )}
-      <div className="nc-foot">Select cards and press Connect, or drag one card onto another.</div>
+      <div className="nc-foot">Tap clues that fit together, then press Connect.</div>
     </div>
   )
 }

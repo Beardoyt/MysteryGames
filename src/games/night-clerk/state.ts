@@ -9,7 +9,7 @@ export type Screen = 'title' | 'intro' | 'desktop' | 'walk' | 'epilogue'
 
 export interface Settings {
   music: number; sfx: number; amb: number
-  crt: boolean; largeText: boolean; hints: boolean; softScares: boolean
+  crt: boolean; largeText: boolean; hints: boolean; softScares: boolean; guided: boolean
 }
 
 export interface GameState {
@@ -33,7 +33,7 @@ export interface GameState {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  music: 0.5, sfx: 0.8, amb: 0.6, crt: true, largeText: false, hints: true, softScares: false,
+  music: 0.5, sfx: 0.8, amb: 0.6, crt: true, largeText: false, hints: true, softScares: false, guided: true,
 }
 
 export function newGame(settings: Settings = DEFAULT_SETTINGS, finished = false): GameState {
@@ -85,6 +85,7 @@ export type Action =
   | { type: 'ACCUSE'; ok: boolean }
   | { type: 'FINISH' }
   | { type: 'SETTINGS'; patch: Partial<Settings> }
+  | { type: 'FLAG'; flag: string }
 
 const has = (s: GameState, f: string) => s.flags.includes(f)
 const T = (s: GameState) => {
@@ -138,20 +139,20 @@ function choose(s: GameState, c: Contact, id: string): GameState {
   s = say(s, c, [{ from: 'you', text }])
   switch (`${c}:${id}`) {
     case 'ray:good': return flag(say(s, c, [{ from: 'them', text: 'good.' }]), 'ray1')
-    case 'ray:asked': return flag(say(s, c, [{ from: 'them', text: 'nobody asked about room 9. go to sleep on the desk if you want, just don\'t touch 14.' }]), 'ray1')
+    case 'ray:asked': return flag(say(s, c, [{ from: 'them', text: 'nobody asked. stay away from 14.' }]), 'ray1')
     case 'edna:tell': return flag(say(s, c, [{ from: 'them', text: 'Don\'t bother.' }, { from: 'sys', text: 'Edna has gone quiet.' }]), 'edna_tell')
     case 'edna:door': return flag(say(s, c, [{ from: 'them', text: '...Who told you that.' }]), 'edna_door')
     case 'edna:hurt': return flag(say(s, c, [{ from: 'them', text: 'Hurt him? I\'m seventy-one.' }]), 'edna_hurt')
     case 'edna:lock':
     case 'edna:please':
       return flag(say(s, c, [
-        { from: 'them', text: 'I\'m two months behind on rent. He said he\'d throw me out on the road.' },
-        { from: 'them', text: 'I saw Ray with a bag. A man\'s bag. Coming out of 9.', clue: 12 },
+        { from: 'them', text: 'Ray said he\'d kick me out if I talked.' },
+        { from: 'them', text: 'I saw Ray with a bag. Coming out of 9.', clue: 12 },
       ]), 'edna_talked')
     case 'luis:card':
       return flag(say(s, c, [
         { from: 'them', text: 'No way. I was at my sister\'s till 4.' },
-        { from: 'them', text: 'Card stays on the hook in laundry. I don\'t lock it, ok? Don\'t tell Ray.' },
+        { from: 'them', text: 'My card hangs in the laundry room. Anyone could take it.' },
       ]), 'luis_card')
   }
   return s
@@ -171,7 +172,7 @@ function direct(s: GameState): GameState {
   // chapter transitions
   if (s.chapter === 0 && s.handoverRead) {
     s = setChapter(s, 1)
-    s = say(s, 'ray', [{ from: 'them', text: 'you good? don\'t touch the camera settings, they\'re fine' }], '11:02pm')
+    s = say(s, 'ray', [{ from: 'them', text: 'you good? don\'t touch the cameras.' }], '11:02pm')
   }
   if (s.chapter === 1 && s.clues.includes(1) && s.clues.includes(2)) {
     s = setChapter(s, 2)
@@ -187,8 +188,8 @@ function direct(s: GameState): GameState {
   }
   if (s.chapter === 3 && s.deductions.includes('B')) {
     s = setChapter(s, 4)
-    s = say(s, 'edna', [{ from: 'them', text: 'Is that the new night person? Ice machine is still broken.' }])
-    s = say(s, 'luis', [{ from: 'them', text: 'hey, Ray said there\'s a new night person. welcome. don\'t eat the vending machine crackers.' }])
+    s = say(s, 'edna', [{ from: 'them', text: 'You the new night clerk?' }])
+    s = say(s, 'luis', [{ from: 'them', text: 'hey new guy. welcome.' }])
   }
   // in-chapter scares
   if (s.chapter === 2 && !fired(s, 'phone') && s.pinsInChapter >= 1) return fire(s, 'phone', 170)
@@ -225,6 +226,7 @@ export function reducer(s: GameState, a: Action): GameState {
       return { ...setChapter(s, 5), screen: 'walk' }
     case 'FINISH': return { ...s, finished: true, screen: 'title' }
     case 'SETTINGS': return { ...s, settings: { ...s.settings, ...a.patch } }
+    case 'FLAG': return flag(s, a.flag)
   }
 }
 

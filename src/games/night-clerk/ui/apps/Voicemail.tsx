@@ -22,10 +22,10 @@ export default function Voicemail() {
     <div className="nc-app">
       <div className="nc-split">
         <ul className="nc-list">
-          {VOICEMAILS.map((v) => (
+          {VOICEMAILS.map((v, n) => (
             <li key={v.id}>
               <button className={`nc-listbtn ${sel === v.id ? 'is-on' : ''}`} onClick={() => { setSel(v.id); setPlaying(false) }}>
-                <b>#{v.id} {v.from}</b><small>{v.when}</small>
+                <b>#{n + 1} {v.from}</b><small>{v.when}</small>
               </button>
             </li>
           ))}
@@ -40,7 +40,7 @@ export default function Voicemail() {
               <div className="nc-dim">Transcript</div>
               {vm.lines.map((l, i) => <Line key={i} clue={vm.clueLine === i ? 10 : undefined}>{l}</Line>)}
             </>
-          ) : <p className="nc-dim">6 messages on the desk line. Select one.</p>}
+          ) : <p className="nc-dim">Select a message.</p>}
         </div>
       </div>
     </div>
