@@ -23,7 +23,7 @@ export const GAMES: GameEntry[] = [
     slug: 'night-clerk',
     title: 'The Night Clerk',
     tagline:
-      'A guest vanished from Room 9. The police say he skipped out. The desk computer says otherwise.',
+      'Monsoon night at a highway lodge near Khandala. A guest vanished from Room 9. The police say he left. The desk computer says otherwise.',
     genre: 'Mystery / Horror',
     length: '30–45 min',
     status: 'playable',

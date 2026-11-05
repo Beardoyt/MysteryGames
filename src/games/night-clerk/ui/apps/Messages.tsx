@@ -4,7 +4,7 @@ import type { Contact } from '../../state.ts'
 import { useGame } from '../ctx.ts'
 import Line from '../Line.tsx'
 
-const NAMES: Record<Contact, string> = { ray: 'RAY (mgr)', edna: 'EDNA · Rm 12', luis: 'LUIS (maint.)' }
+const NAMES: Record<Contact, string> = { ray: 'RAJU (mgr)', edna: 'MRS. IYER · Rm 12', luis: 'SUNIL (room boy)' }
 
 export default function Messages() {
   const { s, dispatch, sfx, guide } = useGame()

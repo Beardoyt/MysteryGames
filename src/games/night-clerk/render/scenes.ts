@@ -92,7 +92,7 @@ function walkway(c: Ctx, o: CamOpts) {
       c.stroke()
     }
   })
-  // figure at 03:32 camera time: Ray limping away from Room 9
+  // figure at 03:32 camera time: Raju limping away from Room 9
   if (!o.live && o.stamp === 212) {
     const z = doorZ(1) + 0.3
     const [fx, fy] = P(-2.2, 1.5, z)
@@ -144,8 +144,8 @@ function car(c: Ctx, x: number, y: number, w: number, h: number, shade: string, 
       c.fillStyle = '#111'
       c.font = `bold ${h * 0.03}px monospace`
       c.textAlign = 'left'
-      c.fillText('HALVORSEN', x + w * 0.555, y + h * 0.345)
-      c.fillText('MUTUAL', x + w * 0.555, y + h * 0.375)
+      c.fillText('BHARAT', x + w * 0.555, y + h * 0.345)
+      c.fillText('GEN. INS.', x + w * 0.555, y + h * 0.375)
     }
   }
 }
@@ -167,7 +167,7 @@ function lot(c: Ctx, o: CamOpts) {
   // parking lines
   c.fillStyle = '#9a9a9a'
   for (let i = 0; i < 7; i++) c.fillRect(20 + i * 46, 120, 2, 80)
-  // Edna's car always there (slot 0); Owen's car arrives at 23:50 camera time (slot 2)
+  // Mrs. Iyer's car always there (slot 0); Owen's car arrives at 23:50 camera time (slot 2)
   car(c, 26, 128, 36, 66, '#5a5a5a')
   if (o.stamp >= -10 || o.live) car(c, 118, 128, 36, 66, '#7e7e7e', true, !!o.zoom)
   if (o.stamp < 200 && !o.live) car(c, 210, 128, 36, 66, '#444')
@@ -179,7 +179,7 @@ function lot(c: Ctx, o: CamOpts) {
   c.fillStyle = '#222'
   c.font = '8px monospace'
   c.textAlign = 'center'
-  c.fillText('PINECREST', 292, 52)
+  c.fillText('SITARA', 292, 52)
   if (o.rayAtCar) {
     c.fillStyle = '#080808'
     c.beginPath(); c.ellipse(166, 150, 6, 7, 0, 0, Math.PI * 2); c.fill()
@@ -216,7 +216,7 @@ function lobby(c: Ctx, o: CamOpts) {
     c.fillStyle = i === 13 ? '#4a4a4a' : '#999'
     c.fillRect(206 + (i % 8) * 10, 50 + Math.floor(i / 8) * 18, 3, 8)
   }
-  // Ray at the desk until he closes it (12:58 real = 01:18 camera)
+  // Raju at the desk until he closes it (12:58 real = 01:18 camera)
   if (!o.live && o.stamp < 78) {
     c.fillStyle = '#0c0c0c'
     c.beginPath(); c.ellipse(240, 92, 10, 12, 0, 0, Math.PI * 2); c.fill()
@@ -308,9 +308,9 @@ export function drawCut(c: Ctx, id: CutId, frame = 0) {
       c.strokeStyle = '#7fd0c6'; c.lineWidth = 3; c.strokeRect(70, 60, 180, 80)
       c.fillStyle = frame % 37 < 3 ? '#2a4a46' : '#9ff0e4'
       c.font = 'bold 24px serif'; c.textAlign = 'center'
-      c.fillText('PINECREST', 160, 98)
+      c.fillText('SITARA', 160, 98)
       c.font = '14px serif'; c.fillStyle = '#e5b25a'
-      c.fillText('MOTOR INN · VACANCY', 160, 124)
+      c.fillText('LODGING · A/C ROOMS', 160, 124)
       tint = 'color'
       break
     }
@@ -423,7 +423,7 @@ export function drawCut(c: Ctx, id: CutId, frame = 0) {
       c.fillRect(160 - sh.w * 1.8, sh.y + 40 + sh.h, sh.w * 3.6, 120)
       if (id === 'ray') { c.fillStyle = '#c9c9c9'; c.fillRect(160 + sh.w, sh.y + 100, 6, 10) }
       if (id === 'luis') { c.fillStyle = '#999'; c.fillRect(150, sh.y + 90, 20, 4) }
-      if (id === 'edna') { c.fillStyle = '#999'; c.strokeStyle = '#999'; c.beginPath(); c.arc(150, sh.y + 40, 5, 0, 7); c.arc(170, sh.y + 40, 5, 0, 7); c.stroke() }
+      if (id === 'edna') { c.fillStyle = '#c0392b'; c.beginPath(); c.arc(160, sh.y + 30, 2, 0, 7); c.fill(); c.fillStyle = '#999'; c.strokeStyle = '#999'; c.beginPath(); c.arc(150, sh.y + 40, 5, 0, 7); c.arc(170, sh.y + 40, 5, 0, 7); c.stroke() }
       tint = undefined
       break
     }

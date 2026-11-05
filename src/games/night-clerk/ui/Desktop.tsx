@@ -208,7 +208,7 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
           )}
           <Events />
         </div>
-        <div className="nc-bezel-label">PINECREST · DESK 1</div>
+        <div className="nc-bezel-label">SITARA · DESK 1</div>
       </div>
       <div className="nc-desk">
         <span className="nc-mug" aria-hidden>☕</span>
@@ -216,7 +216,7 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
         <button className="nc-deskbtn" onClick={() => sfx('S1')} aria-label="Ring the desk bell">🛎</button>
         {tray && (
           <div className="nc-sticky nc-sticky-tray">
-            email pw: <b>pinecrest14</b><br />(don't lose this again!!) — R
+            email pw: <b>sitara14</b><br />(don't lose this again!!) — R
           </div>
         )}
       </div>

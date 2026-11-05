@@ -8,7 +8,7 @@ type Suspect = 'ray' | 'edna' | 'luis'
 type SlotName = 'Motive' | 'Opportunity' | 'Lie'
 const SLOTS: SlotName[] = ['Motive', 'Opportunity', 'Lie']
 const RIGHT: Record<SlotName, DeductionId> = { Motive: 'B', Opportunity: 'A', Lie: 'C' }
-const NAMES: Record<Suspect, string> = { ray: 'Ray Doyle', edna: 'Edna Kowal', luis: 'Luis Ortega' }
+const NAMES: Record<Suspect, string> = { ray: 'Raju Doshi', edna: 'Mrs. Iyer', luis: 'Sunil Kale' }
 
 export default function Accuse({ onClose }: { onClose: () => void }) {
   const { s, dispatch, sfx } = useGame()
@@ -27,19 +27,19 @@ export default function Accuse({ onClose }: { onClose: () => void }) {
     }
     sfx('U8')
     dispatch({ type: 'ACCUSE', ok: false })
-    if (who === 'edna') setReply(`Edna Kowal can barely lift the ice bucket. The report doesn't hold up.${missing ? ` Look again at: ${missing}.` : ''}`)
-    else if (who === 'luis') setReply(`Luis has a whole birthday party who saw him. Someone wanted you to think it was Luis.${missing ? ` Look again at: ${missing}.` : ''}`)
-    else setReply(`You know it's Ray. You can't prove it yet. Missing: ${missing}.`)
+    if (who === 'edna') setReply(`Mrs. Iyer is seventy-one and can barely lift a bucket of water. The complaint doesn't hold up.${missing ? ` Look again at: ${missing}.` : ''}`)
+    else if (who === 'luis') setReply(`Sunil was at his sister's party all night. Someone wanted you to think it was Sunil.${missing ? ` Look again at: ${missing}.` : ''}`)
+    else setReply(`You know it's Raju. You can't prove it yet. Missing: ${missing}.`)
   }
 
   return (
     <div className="nc-accuse" role="dialog" aria-label="Incident report">
       <div className="nc-report">
         <div className="nc-report-head">
-          <b>HARLOW RIDGE COUNTY · INCIDENT REPORT</b>
+          <b>KHANDALA POLICE STATION · COMPLAINT</b>
           <button className="nc-btn" onClick={onClose} aria-label="Close">✕</button>
         </div>
-        <p>Missing person: guest registered as “D. Price”, Room 9. Person responsible:</p>
+        <p>Missing person: guest registered as “D. Sharma”, Room 9. Person responsible:</p>
         <div className="nc-suspects">
           {(['ray', 'edna', 'luis'] as Suspect[]).map((p) => (
             <button key={p} className={`nc-suspect ${who === p ? 'is-on' : ''}`} onClick={() => { setWho(p); sfx('U1') }} aria-pressed={who === p}>

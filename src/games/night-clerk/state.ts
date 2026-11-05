@@ -121,7 +121,7 @@ export function choicesFor(s: GameState, c: Contact): { id: string; text: string
     if (has(s, 'edna_door'))
       return [{ id: 'lock', text: 'The lock did. What did you see?' }, { id: 'hurt', text: 'Did you hurt that man?' }]
     const o: { id: string; text: string }[] = []
-    if (!has(s, 'edna_tell')) o.push({ id: 'tell', text: 'I\'ll tell Ray.' })
+    if (!has(s, 'edna_tell')) o.push({ id: 'tell', text: 'I\'ll tell Raju.' })
     if (s.clues.includes(11)) o.push({ id: 'door', text: 'Your door opened at 3:20 last night.' })
     return o
   }
@@ -140,19 +140,19 @@ function choose(s: GameState, c: Contact, id: string): GameState {
   switch (`${c}:${id}`) {
     case 'ray:good': return flag(say(s, c, [{ from: 'them', text: 'good.' }]), 'ray1')
     case 'ray:asked': return flag(say(s, c, [{ from: 'them', text: 'nobody asked. stay away from 14.' }]), 'ray1')
-    case 'edna:tell': return flag(say(s, c, [{ from: 'them', text: 'Don\'t bother.' }, { from: 'sys', text: 'Edna has gone quiet.' }]), 'edna_tell')
+    case 'edna:tell': return flag(say(s, c, [{ from: 'them', text: 'Don\'t bother.' }, { from: 'sys', text: 'Mrs. Iyer has gone quiet.' }]), 'edna_tell')
     case 'edna:door': return flag(say(s, c, [{ from: 'them', text: '...Who told you that.' }]), 'edna_door')
     case 'edna:hurt': return flag(say(s, c, [{ from: 'them', text: 'Hurt him? I\'m seventy-one.' }]), 'edna_hurt')
     case 'edna:lock':
     case 'edna:please':
       return flag(say(s, c, [
-        { from: 'them', text: 'Ray said he\'d kick me out if I talked.' },
-        { from: 'them', text: 'I saw Ray with a bag. Coming out of 9.', clue: 12 },
+        { from: 'them', text: 'Raju said he\'d kick me out if I talked.' },
+        { from: 'them', text: 'I saw Raju with a bag. Coming out of 9.', clue: 12 },
       ]), 'edna_talked')
     case 'luis:card':
       return flag(say(s, c, [
         { from: 'them', text: 'No way. I was at my sister\'s till 4.' },
-        { from: 'them', text: 'My card hangs in the laundry room. Anyone could take it.' },
+        { from: 'them', text: 'My card hangs in the store room. Anyone could take it.' },
       ]), 'luis_card')
   }
   return s
@@ -182,8 +182,8 @@ function direct(s: GameState): GameState {
     s = setChapter(s, 3)
     s = say(s, 'ray', [
       { from: 'them', text: 'why are you in the camera files' },
-      { from: 'sys', text: 'Ray is typing…' },
-      { from: 'sys', text: 'Ray stopped typing.' },
+      { from: 'sys', text: 'Raju is typing…' },
+      { from: 'sys', text: 'Raju stopped typing.' },
     ], '3:20am')
   }
   if (s.chapter === 3 && s.deductions.includes('B')) {
@@ -236,7 +236,7 @@ export function hintFor(s: GameState): string | null {
   const need = (id: number) => !s.clues.includes(id)
   const ded = (id: DeductionId) => !s.deductions.includes(id)
   switch (s.chapter) {
-    case 0: return 'Open Staff Notes from the Desk menu. Ray left you something.'
+    case 0: return 'Open Staff Notes from the Desk menu. Raju left you something.'
     case 1:
       if (need(1)) return 'Guest Register: who checked into Room 9 last night? Click a line to pin it.'
       if (need(2)) return 'Keycard Log: somebody opened Room 9 in the middle of the night.'
@@ -249,14 +249,14 @@ export function hintFor(s: GameState): string | null {
       return null
     case 3:
       if (need(6)) return 'CCTV Lot camera. Zoom in on the guest\'s car.'
-      if (need(7)) return 'Email. Ray\'s password is on a note under the keyboard. Check the Trash.'
-      if (need(8)) return 'Maintenance Log, back in July. What did Luis write about Room 14?'
+      if (need(7)) return 'Email. Raju\'s password is on a note under the keyboard. Check the Trash.'
+      if (need(8)) return 'Maintenance Log, back in July. What did Sunil write about Room 14?'
       if (ded('B')) return 'Notebook: connect the car pass, the email and the maintenance line.'
       return null
     case 4:
       if (need(11)) return 'Keycard Log again. Who else opened a door around 3:20?'
-      if (need(12)) return 'Messages: talk to Edna. You know her door opened.'
-      if (ded('C')) return 'Notebook: connect Edna\'s door and what she saw.'
+      if (need(12)) return 'Messages: talk to Mrs. Iyer. You know her door opened.'
+      if (ded('C')) return 'Notebook: connect Mrs. Iyer\'s door and what she saw.'
       return 'Notebook: press Accuse and file your report.'
   }
   return null

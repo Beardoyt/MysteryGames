@@ -12,18 +12,18 @@ export interface Clue {
 }
 
 export const CLUES: Clue[] = [
-  { id: 1, text: 'D. Price, Room 9, cash, 11:41pm', app: 'register', chapter: 1, source: 'Guest Register' },
+  { id: 1, text: 'D. Sharma, Room 9, cash, 11:41pm', app: 'register', chapter: 1, source: 'Guest Register' },
   { id: 2, text: 'Room 9 opened 3:12am, MASTER-2', app: 'keycard', chapter: 1, source: 'Keycard Log' },
   { id: 3, text: 'Walkway cam 03:12, nobody there', app: 'cctv', chapter: 2, source: 'CCTV · Walkway' },
   { id: 4, text: 'Sticky note: "CCTV clock 20 min fast"', app: 'desktop', chapter: 2, source: 'Monitor sticky note' },
   { id: 5, text: 'Walkway cam 03:32, hooded figure, MGR key tag', app: 'cctv', chapter: 2, source: 'CCTV · Walkway (zoom)' },
-  { id: 6, text: 'Halvorsen Mutual pass on the dashboard', app: 'cctv', chapter: 3, source: 'CCTV · Lot (zoom)' },
-  { id: 7, text: 'Adjuster O. Marsh visiting for the Room 14 claim', app: 'email', chapter: 3, source: 'Email · Trash' },
+  { id: 6, text: 'Bharat General Insurance pass on the dashboard', app: 'cctv', chapter: 3, source: 'CCTV · Lot (zoom)' },
+  { id: 7, text: 'Adjuster A. Mehta visiting for the Room 14 claim', app: 'email', chapter: 3, source: 'Email · Trash' },
   { id: 8, text: 'Room 14: no cleanup needed. Keep locked', app: 'maintenance', chapter: 3, source: 'Maintenance Log' },
   { id: 9, text: 'Room 9 bed made wrong, not my work', app: 'staff', chapter: 4, source: 'Staff Notes' },
-  { id: 10, text: 'Thanks for staying till 4, little brother', app: 'voicemail', chapter: 4, source: 'Voicemail' },
+  { id: 10, text: 'Thanks for staying till 4, bhaiya', app: 'voicemail', chapter: 4, source: 'Voicemail' },
   { id: 11, text: 'Room 12 opened 3:20am', app: 'keycard', chapter: 4, source: 'Keycard Log' },
-  { id: 12, text: 'I saw Ray with a bag', app: 'messages', chapter: 4, source: 'Messages · Edna' },
+  { id: 12, text: 'I saw Raju with a bag', app: 'messages', chapter: 4, source: 'Messages · Mrs. Iyer' },
 ]
 
 export type DeductionId = 'A' | 'B' | 'C' | 'D'
@@ -40,8 +40,8 @@ export interface Deduction {
 export const DEDUCTIONS: Deduction[] = [
   { id: 'A', title: 'The ghost explained', cards: [3, 4, 5], result: 'Someone with a manager\'s key was at Room 9 at 3:12', slot: 'Opportunity' },
   { id: 'B', title: 'The fake fire', cards: [6, 7, 8], result: 'Room 14 was never burned, and an adjuster came to prove it', slot: 'Motive' },
-  { id: 'C', title: 'Edna\'s secret', cards: [11, 12], result: 'Ray was up at 3:20 with the guest\'s bag', slot: 'Lie' },
-  { id: 'D', title: 'Luis was set up', cards: [2, 9, 10], result: 'Luis\'s card was used, but Luis wasn\'t there', slot: 'Optional' },
+  { id: 'C', title: 'Mrs. Iyer\'s secret', cards: [11, 12], result: 'Raju was up at 3:20 with the guest\'s bag', slot: 'Lie' },
+  { id: 'D', title: 'Sunil was set up', cards: [2, 9, 10], result: 'Sunil\'s card was used, but Sunil wasn\'t there', slot: 'Optional' },
 ]
 
 export const clueById = (id: number) => CLUES.find((c) => c.id === id)!
@@ -56,7 +56,7 @@ export interface Chapter {
 
 /** Clock minutes are relative to midnight (negative = before midnight). */
 export const CHAPTERS: Chapter[] = [
-  { n: 0, title: 'Cold open', start: -62, end: -60, goal: 'Read Ray\'s handover note in Staff Notes.' },
+  { n: 0, title: 'Cold open', start: -62, end: -60, goal: 'Read Raju\'s handover note in Staff Notes.' },
   { n: 1, title: 'Handover', start: -60, end: 60, goal: 'Find out what happened to the guest in Room 9.' },
   { n: 2, title: 'The ghost', start: 60, end: 195, goal: 'Explain the 3:12 door that the camera doesn\'t show.' },
   { n: 3, title: 'The claim', start: 195, end: 270, goal: 'Find out why anyone would want the guest gone.' },

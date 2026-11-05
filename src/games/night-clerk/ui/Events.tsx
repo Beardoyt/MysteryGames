@@ -76,8 +76,8 @@ export default function Events() {
       ['[a flashlight click]', 'On the live walkway camera, a beam of light sweeps across the door of Room 14.', 'You blink. The walkway is dark again.'])
 
   if (ev === 'ray4am')
-    return card(<CamCanvas cam={{ cam: 'lot', stamp: 260, live: true, rayAtCar: true }} label="Lot camera, live: Ray standing by the missing guest's car" />,
-      ['[pager chirp]  RAY: heading out for a bit. watch the desk.', '[a car door slams, far away. No engine.]', 'On the lot camera, Ray stands next to the missing guest\'s car. Then he limps back toward his apartment.'])
+    return card(<CamCanvas cam={{ cam: 'lot', stamp: 260, live: true, rayAtCar: true }} label="Lot camera, live: Raju standing by the missing guest's car" />,
+      ['[pager chirp]  RAJU: heading out for a bit. watch the desk.', '[a car door slams, far away. No engine.]', 'On the lot camera, Raju stands next to the missing guest\'s car. Then he limps back toward his apartment.'])
 
   return null
 }

@@ -16,10 +16,10 @@ export default function Email() {
         onSubmit={(e) => {
           e.preventDefault()
           if (pw.trim().toLowerCase() === EMAIL_PASSWORD) { sfx('U4'); dispatch({ type: 'UNLOCK_EMAIL' }) }
-          else { sfx('U5'); status('Wrong password. Ray must have written it down somewhere.'); setPw('') }
+          else { sfx('U5'); status('Wrong password. Raju must have written it down somewhere.'); setPw('') }
         }}
       >
-        <p><b>DeskMail</b> · user: <span className="nc-mono">rdoyle</span></p>
+        <p><b>DeskMail</b> · user: <span className="nc-mono">rdoshi</span></p>
         <label>Password <input type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoFocus /></label>
         <button className="nc-btn" type="submit">Log in</button>
       </form>

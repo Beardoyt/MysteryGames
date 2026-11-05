@@ -28,7 +28,7 @@ export function guideFor(s: GameState, open: AppId[]): Guide {
 
   switch (s.chapter) {
     case 0:
-      return { text: 'Ray left you a note. Open Staff Notes.', app: 'staff' }
+      return { text: 'Raju left you a note. Open Staff Notes.', app: 'staff' }
     case 1:
       if (!has(1)) return inApp('register', 'Who was the missing guest? Open the Guest Register.', 'Tap the Room 9 guest to pin him as a clue.', { clue: 1 })
       if (!has(2)) return inApp('keycard', 'Did anyone go into Room 9 last night? Open the Keycard Log.', 'Tap the Room 9 entry in the middle of the night.', { clue: 2 })
@@ -42,7 +42,7 @@ export function guideFor(s: GameState, open: AppId[]): Guide {
     case 3:
       if (!has(6)) return inApp('cctv', 'Who was the guest really? Look at his car. Open CCTV Viewer.', 'Lot camera: zoom in on the car parked in the middle.', { cctv: { cam: 'lot', min: -10, max: 999, zoom: true } })
       if (!has(7)) {
-        if (!s.emailUnlocked && !isOpen('email')) return { text: 'Ray\'s email might explain it. Find his password under the keyboard, then open Email.', special: 'keyboard', app: 'email' }
+        if (!s.emailUnlocked && !isOpen('email')) return { text: 'Raju\'s email might explain it. Find his password under the keyboard, then open Email.', special: 'keyboard', app: 'email' }
         return inApp('email', 'Open Email.', s.emailUnlocked ? 'Check the Trash and tap the deleted email\'s first line.' : 'Type the password from under the keyboard.', { clue: 7, special: s.emailUnlocked ? undefined : 'keyboard' })
       }
       if (!has(8)) return inApp('maintenance', 'Was there really a fire? Open the Maintenance Log.', 'Tap the line about cleaning Room 14.', { clue: 8 })
@@ -50,10 +50,10 @@ export function guideFor(s: GameState, open: AppId[]): Guide {
       break
     case 4:
       if (!has(11)) return inApp('keycard', 'Who else was awake at 3:20? Open the Keycard Log.', 'Tap the 3:20am entry.', { clue: 11 })
-      if (!has(12)) return inApp('messages', 'Edna\'s door opened at 3:20. Ask her about it in Messages.', 'Pick Edna and ask about her door. Then tap what she saw.', { clue: 12, special: 'chat' })
-      if (!s.deductions.includes('C')) return connect('C', 'Edna saw something.')
+      if (!has(12)) return inApp('messages', 'Mrs. Iyer\'s door opened at 3:20. Ask her about it in Messages.', 'Pick Mrs. Iyer and ask about her door. Then tap what she saw.', { clue: 12, special: 'chat' })
+      if (!s.deductions.includes('C')) return connect('C', 'Mrs. Iyer saw something.')
       return isOpen('notebook')
-        ? { text: 'Press Accuse. Pick Ray and attach A, B and C.', special: 'accuse' }
+        ? { text: 'Press Accuse. Pick Raju and attach A, B and C.', special: 'accuse' }
         : { text: 'You can prove it now. Open the Notebook and press Accuse.', app: 'notebook' }
   }
   return { text: 'Check the Notebook.' }
