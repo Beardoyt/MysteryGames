@@ -1,0 +1,13 @@
+*, *::before, *::after { box-sizing: border-box; }
+html, body, #root { margin: 0; height: 100%; }
+body {
+  background: #07080a;
+  color: #d8d4c8;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: #c9a227; }
+.loading, .notfound {
+  min-height: 100%; display: grid; place-content: center; gap: 12px; text-align: center;
+  font-family: "VT323", monospace; font-size: 28px; color: #8a8a80;
+}

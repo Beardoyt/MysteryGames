@@ -1,0 +1,43 @@
+.hub {
+  min-height: 100%;
+  padding: 48px 20px 32px;
+  background:
+    radial-gradient(1200px 500px at 50% -10%, #1a1f24 0%, transparent 60%),
+    #07080a;
+}
+.hub-head { max-width: 960px; margin: 0 auto 36px; text-align: center; }
+.hub-logo { font-size: 40px; color: #c9a227; text-shadow: 0 0 18px #c9a22766; }
+.hub-head h1 {
+  font-family: "Special Elite", "Courier New", monospace;
+  font-size: clamp(36px, 7vw, 64px); margin: 6px 0 8px; letter-spacing: 2px; color: #ece6d6;
+}
+.hub-head p { margin: 0 auto; max-width: 560px; color: #9a968c; line-height: 1.5; }
+.hub-grid {
+  max-width: 1040px; margin: 0 auto;
+  display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.hub-card {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit;
+  background: #101317; border: 1px solid #22272d; border-radius: 10px; overflow: hidden;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+a.hub-card:hover, a.hub-card:focus-visible {
+  transform: translateY(-3px); border-color: #3a434c; box-shadow: 0 10px 30px #0008; outline: none;
+}
+.hub-card.is-soon { opacity: .55; }
+.hub-card-art {
+  aspect-ratio: 16 / 9; display: grid; place-items: center; position: relative;
+  background:
+    repeating-linear-gradient(0deg, #0000 0 2px, #0003 2px 3px),
+    radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 45%, #000) 0%, #050607 70%);
+}
+.hub-card-art span {
+  font-family: "Special Elite", monospace; font-size: 26px; color: #f1ead8;
+  text-shadow: 0 0 12px var(--accent);
+}
+.hub-card-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.hub-meta { display: flex; justify-content: space-between; font-size: 12px; color: #7d7a72; text-transform: uppercase; letter-spacing: 1px; }
+.hub-card h2 { margin: 2px 0; font-size: 20px; color: #ece6d6; }
+.hub-card p { margin: 0; color: #a29e93; line-height: 1.45; font-size: 14px; flex: 1; }
+.hub-cta { margin-top: 10px; color: #c9a227; font-weight: 600; font-size: 14px; }
+.hub-foot { text-align: center; margin-top: 40px; color: #5c5a55; font-size: 13px; }
