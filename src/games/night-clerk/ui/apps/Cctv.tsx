@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import CamCanvas from '../CamCanvas.tsx'
-import { CAR_PASS, camStamp, figurePoint } from '../../render/scenes.ts'
+import { camStamp, carPassPoint, figurePoint } from '../../render/scenes.ts'
 import type { CamId } from '../../render/scenes.ts'
 import { useGame } from '../ctx.ts'
 
@@ -51,7 +51,7 @@ export default function Cctv() {
       return status('Someone is there, carrying something. Something small glints at their hip. Try zooming in on it.')
     }
     if (cam === 'lot' && stamp >= -10) {
-      if (near(CAR_PASS)) return pin(6)
+      if (near(carPassPoint())) return pin(6)
       return status('The guest\'s car. There\'s a pass on the dashboard, too small to read. Zoom in.')
     }
     status('Nothing you can use in this frame.')

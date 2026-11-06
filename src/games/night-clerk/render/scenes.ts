@@ -1,3 +1,5 @@
+import { SPOTS, art, drawCover } from './art.ts'
+
 /* Procedural placeholder art. Every "photo" in the game is drawn here on a small
    320x240 canvas, then grain, scanlines and a burned-in timestamp are added.
    Real stills can replace these later by drawing an <img> in CamCanvas instead. */
@@ -37,8 +39,10 @@ function poly(c: Ctx, pts: (readonly [number, number])[], fill: string) {
 }
 
 /** where the clue details sit in camera space, for zoom checks */
-export function figurePoint() { const z = 1.3 + 1.05 + 0.3; const [x, y] = P(-2.2, 1.5, z); return { x: x - 17.5 / z, y: y - 29.5 / z } }
-export const CAR_PASS = { x: 142, y: 150 }
+export function figurePoint() {
+  if (art('cam-walkway-figure') && SPOTS.figureTag) return SPOTS.figureTag
+  const z = 1.3 + 1.05 + 0.3; const [x, y] = P(-2.2, 1.5, z); return { x: x - 17.5 / z, y: y - 29.5 / z } }
+export function carPassPoint() { return art('cam-lot-car') && SPOTS.dashPass ? SPOTS.dashPass : { x: 142, y: 150 } }
 
 export const WALK_DOORS = [8, 9, 10, 11, 12, 13, 14]
 const doorZ = (i: number) => 1.3 + i * 1.05
@@ -231,11 +235,16 @@ export function drawCam(c: Ctx, o: CamOpts) {
     c.scale(o.zoom.k, o.zoom.k)
     c.translate(-o.zoom.x, -o.zoom.y)
   }
-  if (o.cam === 'walkway') walkway(c, o)
+  const key = camKey(o)
+  const img = art(key)
+  if (img) {
+    drawCover(c, img, W, H)
+    camOverlays(c, o, key)
+  } else if (o.cam === 'walkway') walkway(c, o)
   else if (o.cam === 'lot') lot(c, o)
   else lobby(c, o)
   c.restore()
-  grain(c, o.frame ?? 0, 0.32)
+  grain(c, o.frame ?? 0, img ? 0.26 : 0.32)
   // burned-in timestamp
   const label = { walkway: 'CAM2 WALKWAY', lot: 'CAM3 LOT', lobby: 'CAM1 LOBBY' }[o.cam]
   c.fillStyle = 'rgba(0,0,0,0.5)'
@@ -246,6 +255,41 @@ export function drawCam(c: Ctx, o: CamOpts) {
   c.fillText(label + (o.zoom ? '  ZOOM x' + o.zoom.k : ''), 4, H - 4)
   c.textAlign = 'right'
   c.fillText(o.live ? `● LIVE  ${camStamp(o.stamp)}` : `10-15-98  ${camStamp(o.stamp)}:07`, W - 4, H - 4)
+}
+
+export function camKey(o: CamOpts) {
+  if (o.cam === 'walkway') return !o.live && o.stamp === 212 ? 'cam-walkway-figure' : 'cam-walkway'
+  if (o.cam === 'lot') return o.live || o.stamp >= -10 ? 'cam-lot-car' : 'cam-lot'
+  return !o.live && o.stamp < 78 ? 'cam-lobby-raju' : 'cam-lobby'
+}
+
+/** story details drawn on top of real photos */
+function camOverlays(c: Ctx, o: CamOpts, key: string) {
+  const glow = (x: number, y: number, r: number, a: number) => {
+    const g = c.createRadialGradient(x, y, 1, x, y, r)
+    g.addColorStop(0, `rgba(255,255,255,${a})`)
+    g.addColorStop(1, 'rgba(255,255,255,0)')
+    c.fillStyle = g
+    c.fillRect(0, 0, W, H)
+  }
+  if (key === 'cam-walkway-figure' && o.zoom && SPOTS.figureTag) {
+    const { x, y } = SPOTS.figureTag
+    c.fillStyle = '#d8d8d8'; c.fillRect(x - 4, y - 3, 8, 6)
+    c.fillStyle = '#111'; c.font = 'bold 3px monospace'; c.textAlign = 'center'; c.fillText('MGR', x, y + 1)
+  }
+  if (key === 'cam-lot-car' && o.zoom && SPOTS.dashPass) {
+    const { x, y } = SPOTS.dashPass
+    c.fillStyle = '#f2f2f2'; c.fillRect(x - 7, y - 3, 14, 6)
+    c.fillStyle = '#111'; c.font = 'bold 2.2px monospace'; c.textAlign = 'center'
+    c.fillText('BHARAT', x, y - 0.5); c.fillText('GEN. INS.', x, y + 2)
+  }
+  if (o.beam) { const d = SPOTS.door14 ?? { x: 60, y: 120 }; glow(d.x, d.y, 30, 0.95) }
+  if (o.rayAtCar) {
+    const p = SPOTS.rajuAtCar ?? { x: 166, y: 160 }
+    c.fillStyle = '#060606'
+    c.beginPath(); c.ellipse(p.x, p.y - 14, 5, 6, 0, 0, Math.PI * 2); c.fill()
+    c.fillRect(p.x - 6, p.y - 9, 12, 24)
+  }
 }
 
 export function camStamp(min: number) {
@@ -287,6 +331,22 @@ const WARM: [number, number, number] = [1.05, 0.92, 0.78]
 const COLD: [number, number, number] = [0.85, 0.95, 1.08]
 
 export function drawCut(c: Ctx, id: CutId, frame = 0) {
+  const img = art('cut-' + id)
+  if (img) {
+    drawCover(c, img, W, H)
+    if (id === 'sign' && SPOTS.signText) {
+      const t = SPOTS.signText
+      c.textAlign = 'center'
+      c.font = `bold ${t.size}px serif`
+      c.shadowColor = '#ff4fa0'; c.shadowBlur = 8
+      c.fillStyle = frame % 37 < 3 ? '#5a2a40' : '#ffd1e6'
+      c.fillText('HOTEL SITARA', t.x, t.y)
+      c.shadowBlur = 0
+    }
+    if (id === 'police') { c.fillStyle = frame % 10 < 5 ? 'rgba(255,40,40,.3)' : 'rgba(40,80,255,.3)'; c.fillRect(0, 0, W, H) }
+    grain(c, frame, 0.16, 'color')
+    return
+  }
   c.save()
   c.fillStyle = '#0a0a0a'
   c.fillRect(0, 0, W, H)

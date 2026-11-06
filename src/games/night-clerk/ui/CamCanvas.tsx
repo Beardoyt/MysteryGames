@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { H, W, drawCam, drawCut } from '../render/scenes.ts'
+import { H, W, camKey, drawCam, drawCut } from '../render/scenes.ts'
+import { loadArt } from '../render/art.ts'
 import type { CamOpts, CutId } from '../render/scenes.ts'
 
 type Props =
@@ -20,10 +21,13 @@ export default function CamCanvas({ cam, cut, className, onClick, label, fps = 8
       frame++
     }
     draw()
+    // redraw once the real picture (if any) has loaded
+    let alive = true
+    void loadArt(cam ? camKey({ ...cam, frame: 0 }) : 'cut-' + cut).then(() => alive && draw())
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduce || fps <= 0) return
+    if (reduce || fps <= 0) return () => { alive = false }
     const t = window.setInterval(draw, 1000 / fps)
-    return () => window.clearInterval(t)
+    return () => { alive = false; window.clearInterval(t) }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, fps])
   return (
