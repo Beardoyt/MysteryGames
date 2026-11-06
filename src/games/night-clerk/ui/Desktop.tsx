@@ -75,12 +75,9 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // if guided mode is off, show the next step after 2 quiet minutes
+  // a hint lasts until the player makes progress
   useEffect(() => {
     setHintOn(false)
-    if (!s.settings.hints || s.settings.guided) return
-    const t = setTimeout(() => setHintOn(true), 2 * 60 * 1000)
-    return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [s.clues.length, s.deductions.length, s.chapter, s.settings.hints])
 
@@ -112,7 +109,9 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
 
   const openIds = wins.map((w) => w.id)
   const nextStep = guideFor(s, openIds)
-  const guide = s.settings.guided || hintOn ? nextStep : null
+  // the tutorial guides only the first clue; after that, highlights appear only when the player asks for a hint
+  const tutorial = s.settings.guided && s.clues.length === 0
+  const guide = tutorial || hintOn ? nextStep : null
   const glow = (on: boolean) => (on ? 'is-guide' : '')
   const welcomed = s.flags.includes('welcomed')
 
@@ -181,8 +180,7 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
             <div className="nc-tray">
               {saving && <span className="nc-floppy" title="Saved">💾</span>}
               <span title={`Chapter ${s.chapter}: ${CHAPTERS[s.chapter].title}`} className="nc-chapter">Ch.{s.chapter}</span>
-              {!s.settings.guided && <button className="nc-trayicon" onClick={() => setHintOn(true)} aria-label="Hint">💡</button>}
-              <button className="nc-trayicon" onClick={() => open('settings')} aria-label="Volume and settings">🔈</button>
+                            <button className="nc-trayicon" onClick={() => open('settings')} aria-label="Volume and settings">🔈</button>
               <span className="nc-clock">{fmtClock(clockOf(s))}</span>
             </div>
           </footer>
@@ -200,7 +198,7 @@ export default function Desktop({ onQuit, register, statusMsg, saving, accuseOpe
                 <ul>
                   <li><b>Tap</b> an app to open it.</li>
                   <li><b>Tap</b> anything suspicious to save it as a clue.</li>
-                  <li>Follow the <b>NEXT</b> bar at the top. Glowing things are what to tap.</li>
+                  <li>For your first clue, follow the <b>NEXT</b> bar and tap what glows. After that you're on your own, but <b>💡 Hint</b> is there if you get stuck.</li>
                 </ul>
                 <button className="nc-btn nc-big" autoFocus onClick={() => { sfx('U1'); dispatch({ type: 'FLAG', flag: 'welcomed' }) }}>Start my shift</button>
               </div>

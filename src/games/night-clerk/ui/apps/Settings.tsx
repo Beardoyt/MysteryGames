@@ -16,10 +16,9 @@ export default function Settings({ onQuit }: { onQuit?: () => void }) {
       {vol('music', 'Music')}
       {vol('sfx', 'Effects')}
       {vol('amb', 'Ambience')}
-      {tog('guided', 'Guided mode (show the next step)')}
+      {tog('guided', 'Tutorial for the first clue')}
       {tog('crt', 'Screen effects (scanlines, flicker)')}
       {tog('largeText', 'Large text')}
-      {tog('hints', 'Hint note if stuck for 2 minutes')}
       {tog('softScares', 'Soften scares (no breathing call, no camera sting)')}
       {onQuit && <button className="nc-btn" onClick={onQuit}>Save &amp; quit to title</button>}
       <div className="nc-foot">Progress saves automatically in this browser.</div>
