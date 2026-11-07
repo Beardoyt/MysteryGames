@@ -4,12 +4,16 @@ import type { AppId } from './data/clues.ts'
 import { eraseSave, hasFinished, loadSave, loadSettings, newGame, persist, reducer } from './state.ts'
 import type { GameState } from './state.ts'
 import { audio } from './sound.ts'
+import { preloadAllArt } from './render/art.ts'
 import { Ctx } from './ui/ctx.ts'
 import type { GameCtx } from './ui/ctx.ts'
 import Desktop from './ui/Desktop.tsx'
 import type { DesktopApi } from './ui/Desktop.tsx'
 import { Epilogue, Intro, Title, Walk } from './ui/Screens.tsx'
 import './nightclerk.css'
+
+// fetch all pictures as soon as the game opens
+void preloadAllArt()
 
 function init(): GameState {
   return { ...newGame(loadSettings(), hasFinished()), screen: 'title' }

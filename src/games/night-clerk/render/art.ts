@@ -16,6 +16,9 @@ const waiting: Record<string, Promise<void>> = {}
 
 export const hasArt = (key: string) => key in URLS
 
+/** start downloading every picture so scenes never wait */
+export const preloadAllArt = () => Promise.all(Object.keys(URLS).map(loadArt))
+
 /** Returns the image if it is loaded, otherwise null (and starts loading it). */
 export function art(key: string): HTMLImageElement | null {
   if (!URLS[key]) return null

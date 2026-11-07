@@ -1,4 +1,4 @@
-import { SPOTS, art, cutArtKey, drawCover } from './art.ts'
+import { SPOTS, art, cutArtKey, drawCover, hasArt } from './art.ts'
 
 /* Procedural placeholder art. Every "photo" in the game is drawn here on a small
    320x240 canvas, then grain, scanlines and a burned-in timestamp are added.
@@ -240,6 +240,9 @@ export function drawCam(c: Ctx, o: CamOpts) {
   if (img) {
     drawCover(c, img, W, H)
     camOverlays(c, o, key)
+  } else if (hasArt(key)) {
+    // real picture still downloading: show a dark, noisy feed instead of the old drawing
+    c.fillStyle = '#111'; c.fillRect(0, 0, W, H)
   } else if (o.cam === 'walkway') walkway(c, o)
   else if (o.cam === 'lot') lot(c, o)
   else lobby(c, o)
@@ -340,6 +343,11 @@ const COLD: [number, number, number] = [0.85, 0.95, 1.08]
 
 export function drawCut(c: Ctx, id: CutId, frame = 0) {
   const img = art(cutArtKey(id))
+  if (!img && hasArt(cutArtKey(id))) {
+    c.fillStyle = '#0a0a0a'; c.fillRect(0, 0, W, H)
+    grain(c, frame, 0.12, 'color')
+    return
+  }
   if (img) {
     c.save()
     if (id === 'key') { c.translate(W / 2, H / 2); c.scale(1.6, 1.6); c.translate(-W / 2 - 40, -H / 2) }
