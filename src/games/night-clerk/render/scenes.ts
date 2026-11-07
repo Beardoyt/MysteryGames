@@ -1,4 +1,4 @@
-import { SPOTS, art, drawCover } from './art.ts'
+import { SPOTS, art, cutArtKey, drawCover } from './art.ts'
 
 /* Procedural placeholder art. Every "photo" in the game is drawn here on a small
    320x240 canvas, then grain, scanlines and a burned-in timestamp are added.
@@ -274,21 +274,28 @@ function camOverlays(c: Ctx, o: CamOpts, key: string) {
   }
   if (key === 'cam-walkway-figure' && o.zoom && SPOTS.figureTag) {
     const { x, y } = SPOTS.figureTag
-    c.fillStyle = '#d8d8d8'; c.fillRect(x - 4, y - 3, 8, 6)
-    c.fillStyle = '#111'; c.font = 'bold 3px monospace'; c.textAlign = 'center'; c.fillText('MGR', x, y + 1)
+    c.fillStyle = '#d8d8d8'; c.fillRect(x - 3.5, y - 2.5, 7, 5)
+    c.fillStyle = '#111'; c.font = 'bold 2.4px monospace'; c.textAlign = 'center'; c.fillText('MGR', x, y + 0.9)
   }
   if (key === 'cam-lot-car' && o.zoom && SPOTS.dashPass) {
     const { x, y } = SPOTS.dashPass
-    c.fillStyle = '#f2f2f2'; c.fillRect(x - 7, y - 3, 14, 6)
-    c.fillStyle = '#111'; c.font = 'bold 2.2px monospace'; c.textAlign = 'center'
-    c.fillText('BHARAT', x, y - 0.5); c.fillText('GEN. INS.', x, y + 2)
+    c.fillStyle = '#f2f2f2'; c.fillRect(x - 5, y - 2.5, 10, 5)
+    c.fillStyle = '#111'; c.font = 'bold 1.7px monospace'; c.textAlign = 'center'
+    c.fillText('BHARAT', x, y - 0.3); c.fillText('GEN. INS.', x, y + 1.7)
   }
   if (o.beam) { const d = SPOTS.door14 ?? { x: 60, y: 120 }; glow(d.x, d.y, 30, 0.95) }
   if (o.rayAtCar) {
     const p = SPOTS.rajuAtCar ?? { x: 166, y: 160 }
-    c.fillStyle = '#060606'
-    c.beginPath(); c.ellipse(p.x, p.y - 14, 5, 6, 0, 0, Math.PI * 2); c.fill()
-    c.fillRect(p.x - 6, p.y - 9, 12, 24)
+    // a heavy-set man, slightly hunched, softened so he sits in the grain
+    c.save()
+    c.filter = 'blur(0.6px)'
+    c.fillStyle = 'rgba(8,8,8,0.92)'
+    c.beginPath(); c.ellipse(p.x + 0.5, p.y - 13, 2.6, 3.2, 0, 0, Math.PI * 2); c.fill()
+    c.beginPath()
+    c.moveTo(p.x - 4.5, p.y - 9); c.quadraticCurveTo(p.x, p.y - 11, p.x + 5, p.y - 9)
+    c.lineTo(p.x + 5.5, p.y + 3); c.lineTo(p.x - 5, p.y + 3); c.closePath(); c.fill()
+    c.fillRect(p.x - 4, p.y + 3, 3, 11); c.fillRect(p.x + 1.2, p.y + 3, 3, 10.5)
+    c.restore()
   }
 }
 
@@ -299,16 +306,17 @@ export function camStamp(min: number) {
 
 /** grain + scanlines + vignette; turns everything into a grubby 90s still */
 export function grain(c: Ctx, seed: number, amount: number, tint?: [number, number, number] | 'color') {
-  const img = c.getImageData(0, 0, W, H)
+  const cw = c.canvas.width, ch = c.canvas.height, k = cw / W
+  const img = c.getImageData(0, 0, cw, ch)
   const d = img.data
   let s = (seed * 7919 + 13) >>> 0
   for (let i = 0; i < d.length; i += 4) {
     s = (s * 1664525 + 1013904223) >>> 0
     const n = ((s >>> 24) - 128) * amount
-    const y = (i / 4 / W) | 0
-    const scan = y % 2 ? 0.88 : 1
-    const x = (i / 4) % W
-    const vx = (x - W / 2) / (W / 2), vy = (y - H / 2) / (H / 2)
+    const y = (i / 4 / cw) | 0
+    const scan = ((y / k) | 0) % 2 ? 0.88 : 1
+    const x = (i / 4) % cw
+    const vx = (x - cw / 2) / (cw / 2), vy = (y - ch / 2) / (ch / 2)
     const vig = 1 - Math.min(0.75, (vx * vx + vy * vy) * 0.38)
     if (tint === 'color') {
       for (let k = 0; k < 3; k++) d[i + k] = (d[i + k] + n * 0.6) * scan * vig
@@ -331,16 +339,29 @@ const WARM: [number, number, number] = [1.05, 0.92, 0.78]
 const COLD: [number, number, number] = [0.85, 0.95, 1.08]
 
 export function drawCut(c: Ctx, id: CutId, frame = 0) {
-  const img = art('cut-' + id)
+  const img = art(cutArtKey(id))
   if (img) {
+    c.save()
+    if (id === 'key') { c.translate(W / 2, H / 2); c.scale(1.6, 1.6); c.translate(-W / 2 - 40, -H / 2) }
     drawCover(c, img, W, H)
+    c.restore()
+    if (id === 'walkway' || id === 'tape' || id === 'key') {
+      // first-person flashlight: dark everywhere except the beam
+      const g = c.createRadialGradient(W / 2, H / 2 + 10, 10, W / 2, H / 2 + 10, 150)
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,0.85)')
+      c.fillStyle = g; c.fillRect(0, 0, W, H)
+    }
     if (id === 'sign' && SPOTS.signText) {
       const t = SPOTS.signText
+      const flick = frame % 37 < 3
       c.textAlign = 'center'
+      c.shadowColor = '#ff4fa0'; c.shadowBlur = 10
+      c.fillStyle = flick ? '#5a2a40' : '#ffe3f0'
       c.font = `bold ${t.size}px serif`
-      c.shadowColor = '#ff4fa0'; c.shadowBlur = 8
-      c.fillStyle = frame % 37 < 3 ? '#5a2a40' : '#ffd1e6'
-      c.fillText('HOTEL SITARA', t.x, t.y)
+      c.fillText('SITARA', t.x, t.y)
+      c.font = `bold ${Math.round(t.size * 0.4)}px serif`
+      c.fillStyle = flick ? '#5a2a40' : '#ffb3d4'
+      c.fillText('HIGHWAY LODGE', t.x, t.y + t.size * 0.62)
       c.shadowBlur = 0
     }
     if (id === 'police') { c.fillStyle = frame % 10 < 5 ? 'rgba(255,40,40,.3)' : 'rgba(40,80,255,.3)'; c.fillRect(0, 0, W, H) }

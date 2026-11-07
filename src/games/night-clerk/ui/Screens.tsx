@@ -11,10 +11,10 @@ export function Title({ hasSave, onContinue, onNew }: { hasSave: boolean; onCont
   const [confirm, setConfirm] = useState(false)
   return (
     <div className="nc-title-screen">
-      <CamCanvas cut="sign" label="The Hotel Sitara sign, buzzing in the dark" className="nc-title-bg" fps={10} />
+      <CamCanvas cut="sign" label="The Sitara Highway Lodge sign, buzzing in the dark" className="nc-title-bg" fps={10} />
       <div className="nc-title-box">
         <h1>The Night Clerk</h1>
-        <p className="nc-dim">Hotel Sitara · October 15, 1998 · 11pm to 7am</p>
+        <p className="nc-dim">Sitara Highway Lodge · October 15, 1998 · 11pm to 7am</p>
         <div className="nc-title-btns">
           {hasSave && <button className="nc-btn nc-big" onClick={onContinue} autoFocus>Continue shift</button>}
           {!confirm ? (
@@ -37,7 +37,7 @@ export function Title({ hasSave, onContinue, onNew }: { hasSave: boolean; onCont
 
 const INTRO: Shot[] = [
   { cut: 'highway', text: 'The old Mumbai–Pune highway. Monsoon rain. Ghats on every side.' },
-  { cut: 'sign', text: 'Hotel Sitara. Sixteen rooms. One of them has been locked since the summer "fire".' },
+  { cut: 'sign', text: 'Sitara Highway Lodge. Sixteen rooms. One of them has been locked since the summer "fire".' },
   { cut: 'car', text: 'Last night, a man checked into Room 9.' },
   { cut: 'door14', text: 'This morning, he was gone. His car wasn\'t.' },
   { cut: 'monitor', text: 'Your second night shift. Eleven to seven. Just you and the desk.', sfx: 'U13' },

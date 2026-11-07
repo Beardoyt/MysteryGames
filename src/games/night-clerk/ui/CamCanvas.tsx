@@ -1,11 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { H, W, camKey, drawCam, drawCut } from '../render/scenes.ts'
-import { loadArt } from '../render/art.ts'
+import { cutArtKey, loadArt } from '../render/art.ts'
 import type { CamOpts, CutId } from '../render/scenes.ts'
 
 type Props =
   | { cam: Omit<CamOpts, 'frame'>; cut?: never; className?: string; onClick?: (x: number, y: number) => void; label: string; fps?: number }
   | { cut: CutId; cam?: never; className?: string; onClick?: (x: number, y: number) => void; label: string; fps?: number }
+
+/** canvas pixels per scene unit: scenes are authored at 320x240 */
+const SCALE = 2
 
 /** A small low-res canvas that redraws a few times a second so the grain crawls. */
 export default function CamCanvas({ cam, cut, className, onClick, label, fps = 8 }: Props) {
@@ -16,6 +19,7 @@ export default function CamCanvas({ cam, cut, className, onClick, label, fps = 8
     if (!c) return
     let frame = 0
     const draw = () => {
+      c.setTransform(SCALE, 0, 0, SCALE, 0, 0)
       if (cam) drawCam(c, { ...cam, frame })
       else drawCut(c, cut!, frame)
       frame++
@@ -23,7 +27,7 @@ export default function CamCanvas({ cam, cut, className, onClick, label, fps = 8
     draw()
     // redraw once the real picture (if any) has loaded
     let alive = true
-    void loadArt(cam ? camKey({ ...cam, frame: 0 }) : 'cut-' + cut).then(() => alive && draw())
+    void loadArt(cam ? camKey({ ...cam, frame: 0 }) : cutArtKey(cut!)).then(() => alive && draw())
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce || fps <= 0) return () => { alive = false }
     const t = window.setInterval(draw, 1000 / fps)
@@ -33,8 +37,8 @@ export default function CamCanvas({ cam, cut, className, onClick, label, fps = 8
   return (
     <canvas
       ref={ref}
-      width={W}
-      height={H}
+      width={W * SCALE}
+      height={H * SCALE}
       className={`nc-cam ${className ?? ''}`}
       role="img"
       aria-label={label}

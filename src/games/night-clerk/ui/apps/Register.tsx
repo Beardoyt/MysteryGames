@@ -29,7 +29,7 @@ export default function Register() {
           </tbody>
         </table>
       </div>
-      <div className="nc-foot">{rows.length} entries · Hotel Sitara guest register</div>
+      <div className="nc-foot">{rows.length} entries · Sitara Highway Lodge guest register</div>
     </div>
   )
 }

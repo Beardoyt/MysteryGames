@@ -56,4 +56,14 @@ export const SPOTS: {
   door14?: { x: number; y: number }
   rajuAtCar?: { x: number; y: number }
   signText?: { x: number; y: number; size: number }
-} = {}
+} = {
+  figureTag: { x: 256, y: 130 },
+  dashPass: { x: 186, y: 126 },
+  door14: { x: 236, y: 72 },
+  rajuAtCar: { x: 132, y: 142 },
+  signText: { x: 155, y: 85, size: 30 },
+}
+
+/** cutaways without their own picture reuse a related one */
+const REUSE: Record<string, string> = { police: 'cam-lot-car', walkway: 'cam-walkway', tape: 'cut-door14', key: 'cut-cabinet' }
+export const cutArtKey = (id: string) => (hasArt('cut-' + id) ? 'cut-' + id : REUSE[id] ?? 'cut-' + id)
